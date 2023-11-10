@@ -32,9 +32,6 @@ class Graph:
     def get_neighbours(self, node: Tuple[int, int]) -> Set[Tuple[int, int]]:
         return self.vertices[node]
 
-    def has_edge(self, node: Tuple[int, int], neighbour: Tuple[int, int]) -> bool:
-        return neighbour in self.vertices[node]
-
 
 def generate_graph(size: int) -> Graph:
     """
