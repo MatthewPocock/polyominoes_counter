@@ -48,7 +48,7 @@ def generate_graph(size: int) -> Graph:
     return lattice_graph
 
 
-def count_polyominoes(graph: Graph, depth: int, max_size: int, untried_set: List[Tuple[int, int]], cells_added: List):
+def count_polyominoes(graph: Graph, depth: int, max_size: int, untried_set: List[Tuple[int, int]], cells_added: List[Tuple[int, int]]):
     """
     :param graph: square lattice - the graph on which we want to count the amount of sub-graphs up to given size
     :param depth: current recursion depth
@@ -57,6 +57,11 @@ def count_polyominoes(graph: Graph, depth: int, max_size: int, untried_set: List
     :param cells_added: list of cells in square lattice
     :return: amount of fixed polyominoes up to give max_size
     """
+    old_neighbours = set()
+    if len(untried_set) != 0 and depth+1 < max_size:
+        for cell in cells_added:
+            old_neighbours.add(cell)
+            old_neighbours.update(graph.get_neighbours(cell))
     element_count = Counter()
     while len(untried_set) != 0:
         random_element, *untried_set = untried_set  # Step 1
@@ -64,11 +69,6 @@ def count_polyominoes(graph: Graph, depth: int, max_size: int, untried_set: List
         element_count[depth+1] += 1  # Step 3
 
         if depth + 1 < max_size:  # Step 4
-            old_neighbours = set()
-            for cell in cells_added:
-                if cell != random_element:
-                    old_neighbours.add(cell)
-                    old_neighbours.update(graph.get_neighbours(cell))
             new_neighbours = []
             for neighbour in graph.get_neighbours(random_element):
                 if neighbour not in old_neighbours:

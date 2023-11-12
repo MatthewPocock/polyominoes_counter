@@ -25,6 +25,15 @@ func CreateLattice(n int) *Graph {
 }
 
 func CountPolyominoes(graph *Graph, depth int, maxSize int, untriedSet []Node, cellsAdded []Node) map[int]int {
+	oldNeighbours := make(map[Node]bool)
+	if len(untriedSet) != 0 && depth+1 < maxSize {
+		for _, cell := range cellsAdded {
+			oldNeighbours[cell] = true
+			for k, v := range graph.GetNeighbours(cell) {
+				oldNeighbours[k] = v
+			}
+		}
+	}
 	elementCount := make(map[int]int)
 	for len(untriedSet) != 0 {
 		randomElement := untriedSet[0] // Step 1
@@ -34,15 +43,6 @@ func CountPolyominoes(graph *Graph, depth int, maxSize int, untriedSet []Node, c
 		elementCount[depth+1]++ // Step 3
 
 		if depth+1 < maxSize { // Step 4
-			oldNeighbours := make(map[Node]bool)
-			for _, cell := range cellsAdded {
-				if cell != randomElement {
-					oldNeighbours[cell] = true
-					for k, v := range graph.GetNeighbours(cell) {
-						oldNeighbours[k] = v
-					}
-				}
-			}
 			var newNeighbours []Node
 			for neighbour := range graph.GetNeighbours(randomElement) {
 				if _, exists := oldNeighbours[neighbour]; !exists {
@@ -69,7 +69,6 @@ func main() {
 	defer func(cpuProfile *os.File) {
 		err := cpuProfile.Close()
 		if err != nil {
-
 		}
 	}(cpuProfile)
 
