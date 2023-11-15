@@ -58,7 +58,7 @@ def count_polyominoes(graph: Graph, depth: int, max_size: int, untried_set: List
     :return: amount of fixed polyominoes up to give max_size
     """
     old_neighbours = set()
-    if len(untried_set) != 0 and depth+1 < max_size:
+    if len(untried_set) != 0 and depth < max_size:
         for cell in cells_added:
             old_neighbours.add(cell)
             old_neighbours.update(graph.get_neighbours(cell))
@@ -66,9 +66,9 @@ def count_polyominoes(graph: Graph, depth: int, max_size: int, untried_set: List
     while len(untried_set) != 0:
         random_element, *untried_set = untried_set  # Step 1
         cells_added.append(random_element)  # Step 2
-        element_count[depth+1] += 1  # Step 3
+        element_count[depth] += 1  # Step 3
 
-        if depth + 1 < max_size:  # Step 4
+        if depth < max_size:  # Step 4
             new_neighbours = []
             for neighbour in graph.get_neighbours(random_element):
                 if neighbour not in old_neighbours:
@@ -87,7 +87,7 @@ def count_polyominoes(graph: Graph, depth: int, max_size: int, untried_set: List
 @click.argument("n", type=int)
 def main(n):
     lattice_graph = generate_graph(n)
-    count = count_polyominoes(lattice_graph, 0, n, [(0, 0)], [])
+    count = count_polyominoes(lattice_graph, 1, n, [(0, 0)], [])
     print(count)
     return count
 
