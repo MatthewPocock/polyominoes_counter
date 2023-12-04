@@ -34,13 +34,13 @@ func CountPolyominoes(graph *Graph, depth int, maxSize int, untriedSet []Node, c
 			}
 		}
 	}
-	elementCount := make([]int, maxSize+1)
+	elementCount := make([]int, maxSize)
 	for len(untriedSet) != 0 {
 		randomElement := untriedSet[0] // Step 1
 		untriedSet = untriedSet[1:]    // Step 2
 		cellsAdded = append(cellsAdded, randomElement)
 
-		elementCount[depth+1]++ // Step 3
+		elementCount[depth]++ // Step 3
 
 		if depth+1 < maxSize { // Step 4
 			var newNeighbours []Node
