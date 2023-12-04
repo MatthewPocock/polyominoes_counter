@@ -1,8 +1,7 @@
 package main
 
 type Node struct {
-	X int
-	Y int
+	X, Y, Z int
 }
 
 type Graph struct {
@@ -20,8 +19,12 @@ func (g *Graph) AddEdge(node1, node2 Node) {
 
 func (g *Graph) ConnectAdjacentNodes() {
 	for key := range g.vertices {
-		x, y := key.X, key.Y
-		adjacent := []Node{{X: x + 1, Y: y}, {X: x - 1, Y: y}, {X: x, Y: y + 1}, {X: x, Y: y - 1}}
+		x, y, z := key.X, key.Y, key.Z
+		adjacent := []Node{
+			{x + 1, y, z}, {x - 1, y, z},
+			{x, y + 1, z}, {x, y - 1, z},
+			{x, y, z + 1}, {x, y, z - 1},
+		}
 		for _, node := range adjacent {
 			if _, exists := g.vertices[node]; exists {
 				g.AddEdge(key, node)

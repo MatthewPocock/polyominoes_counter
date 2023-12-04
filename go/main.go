@@ -11,13 +11,24 @@ func CreateLattice(n int) *Graph {
 	latticeGraph := NewGraph()
 
 	for x := 0; x < n; x++ {
-		node := Node{X: x, Y: 0}
+		node := Node{X: x, Y: 0, Z: 0}
 		latticeGraph.AddVertex(node)
 	}
+
+	for z := 1; z < n; z++ {
+		for x := -n + z + 1; x < n-z; x++ {
+			node := Node{X: x, Y: 0, Z: z}
+			latticeGraph.AddVertex(node)
+		}
+	}
+
 	for y := 1; y < n; y++ {
 		for x := -n + y + 1; x < n-y; x++ {
-			node := Node{X: x, Y: y}
-			latticeGraph.AddVertex(node)
+			for z := -n + 1; z < n; z++ {
+				node := Node{X: x, Y: y, Z: z}
+				latticeGraph.AddVertex(node)
+			}
+
 		}
 	}
 	latticeGraph.ConnectAdjacentNodes()
@@ -92,7 +103,7 @@ func main() {
 	}
 
 	latticeGraph := CreateLattice(n)
-	untriedSet := []Node{{X: 0, Y: 0}}
+	untriedSet := []Node{{X: 0, Y: 0, Z: 0}}
 	var cellsAdded []Node
 	count := CountPolyominoes(latticeGraph, 0, n, untriedSet, cellsAdded)
 	fmt.Println(count)
