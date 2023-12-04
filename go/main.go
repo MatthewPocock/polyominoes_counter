@@ -10,13 +10,13 @@ import (
 func CreateLattice(n int) *Graph {
 	latticeGraph := NewGraph()
 
-	for i := 0; i < n; i++ {
-		node := Node{X: 0, Y: i}
+	for x := 0; x < n; x++ {
+		node := Node{X: x, Y: 0}
 		latticeGraph.AddVertex(node)
 	}
-	for i := 1; i < n; i++ {
-		for j := -n + i + 1; j < n-i; j++ {
-			node := Node{X: i, Y: j}
+	for y := 1; y < n; y++ {
+		for x := -n + y + 1; x < n-y; x++ {
+			node := Node{X: x, Y: y}
 			latticeGraph.AddVertex(node)
 		}
 	}
