@@ -6,24 +6,22 @@ type Node struct {
 }
 
 type Graph struct {
-	vertices map[Node]map[Node]bool
+	vertices map[Node][]Node
 }
 
 func (g *Graph) AddVertex(node Node) {
-	if g.vertices[node] == nil {
-		g.vertices[node] = make(map[Node]bool)
-	}
+	g.vertices[node] = []Node{}
 }
 
 func (g *Graph) AddEdge(node1, node2 Node) {
-	g.vertices[node1][node2] = true
-	g.vertices[node2][node1] = true
+	g.vertices[node1] = append(g.vertices[node1], node2)
+	//g.vertices[node2] = append(g.vertices[node2], node1)
 }
 
 func (g *Graph) ConnectAdjacentNodes() {
 	for key := range g.vertices {
 		x, y := key.X, key.Y
-		adjacent := []Node{{x + 1, y}, {x - 1, y}, {x, y + 1}, {x, y - 1}}
+		adjacent := []Node{{X: x + 1, Y: y}, {X: x - 1, Y: y}, {X: x, Y: y + 1}, {X: x, Y: y - 1}}
 		for _, node := range adjacent {
 			if _, exists := g.vertices[node]; exists {
 				g.AddEdge(key, node)
@@ -32,12 +30,12 @@ func (g *Graph) ConnectAdjacentNodes() {
 	}
 }
 
-func (g *Graph) GetNeighbours(node Node) map[Node]bool {
+func (g *Graph) GetNeighbours(node Node) []Node {
 	return g.vertices[node]
 }
 
 func NewGraph() *Graph {
 	return &Graph{
-		vertices: make(map[Node]map[Node]bool),
+		vertices: make(map[Node][]Node),
 	}
 }

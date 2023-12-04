@@ -29,8 +29,8 @@ func CountPolyominoes(graph *Graph, depth int, maxSize int, untriedSet []Node, c
 	if len(untriedSet) != 0 && depth+1 < maxSize {
 		oldNeighbours = cellsAdded
 		for _, cell := range cellsAdded {
-			for k := range graph.GetNeighbours(cell) {
-				oldNeighbours = append(oldNeighbours, k)
+			for _, neighbour := range graph.GetNeighbours(cell) {
+				oldNeighbours = append(oldNeighbours, neighbour)
 			}
 		}
 	}
@@ -44,7 +44,7 @@ func CountPolyominoes(graph *Graph, depth int, maxSize int, untriedSet []Node, c
 
 		if depth+1 < maxSize { // Step 4
 			var newNeighbours []Node
-			for neighbour := range graph.GetNeighbours(randomElement) {
+			for _, neighbour := range graph.GetNeighbours(randomElement) {
 				if !contains(oldNeighbours, neighbour) {
 					newNeighbours = append(newNeighbours, neighbour)
 				}
