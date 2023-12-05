@@ -15,16 +15,16 @@ func CreateLattice(n int) *Graph {
 		latticeGraph.AddVertex(node)
 	}
 
-	for z := 1; z < n; z++ {
-		for x := -n + z + 1; x < n-z; x++ {
-			node := Node{X: x, Y: 0, Z: z}
+	for y := 1; y < n; y++ {
+		for x := -n + y + 1; x < n-y; x++ {
+			node := Node{X: x, Y: y, Z: 0}
 			latticeGraph.AddVertex(node)
 		}
 	}
 
-	for y := 1; y < n; y++ {
-		for x := -n + y + 1; x < n-y; x++ {
-			for z := -n + 1; z < n; z++ {
+	for z := 1; z < n; z++ {
+		for x := -n + z + 1; x < n-z; x++ {
+			for y := -n + 1; y < n; y++ {
 				node := Node{X: x, Y: y, Z: z}
 				latticeGraph.AddVertex(node)
 			}
