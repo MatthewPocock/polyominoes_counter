@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"runtime/pprof"
-	"sort"
 	"strconv"
 )
 
@@ -29,7 +28,7 @@ func CountPolyominoes(graph *Graph, depth int, maxSize int, untriedSet []Node, c
 	newUntriedSet := make([]Node, len(untriedSet))
 	copy(newUntriedSet, untriedSet)
 
-	var oldNeighbours []Node // TODO: can we order this slice?
+	var oldNeighbours []Node
 	if len(newUntriedSet) != 0 && depth+1 < maxSize {
 		oldNeighbours = cellsAdded
 		for _, cell := range cellsAdded {
@@ -38,12 +37,6 @@ func CountPolyominoes(graph *Graph, depth int, maxSize int, untriedSet []Node, c
 			}
 		}
 	}
-	//sort.Slice(oldNeighbours, func(i, j int) bool {
-	//	if oldNeighbours[i].X == oldNeighbours[j].X {
-	//		return oldNeighbours[i].Y < oldNeighbours[j].Y
-	//	}
-	//	return oldNeighbours[i].X < oldNeighbours[j].X
-	//})
 	elementCount := make([]int, maxSize)
 	for len(newUntriedSet) != 0 {
 		randomElement := newUntriedSet[len(newUntriedSet)-1] // step 1
@@ -78,19 +71,6 @@ func contains(slice []Node, value Node) bool {
 		}
 	}
 	return false
-}
-
-func addCell(arr []Node, val Node) int {
-	index := sort.Search(len(arr), func(i int) bool {
-		if arr[i].X == val.X {
-			return arr[i].Y >= val.Y
-		}
-		return arr[i].X > val.X
-	})
-	arr = append(arr, val)
-	copy(arr[index+1:], arr[index:])
-	arr[index] = val
-	return index
 }
 
 func main() {
