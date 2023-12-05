@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"runtime/pprof"
+	"sort"
 	"strconv"
 )
 
@@ -58,8 +59,7 @@ func CountPolyominoes(graph *Graph, depth int, maxSize int, untriedSet []Node, c
 					newNeighbours = append(newNeighbours, neighbour)
 				}
 			}
-			newUntriedSet := append(newUntriedSet, newNeighbours...)
-			newCounts := CountPolyominoes(graph, depth+1, maxSize, newUntriedSet, cellsAdded, append(path, randomElement))
+			newCounts := CountPolyominoes(graph, depth+1, maxSize, append(newUntriedSet, newNeighbours...), cellsAdded, append(path, randomElement))
 			for i := range elementCount {
 				elementCount[i] += newCounts[i]
 			}
@@ -78,6 +78,19 @@ func contains(slice []Node, value Node) bool {
 		}
 	}
 	return false
+}
+
+func addCell(arr []Node, val Node) int {
+	index := sort.Search(len(arr), func(i int) bool {
+		if arr[i].X == val.X {
+			return arr[i].Y >= val.Y
+		}
+		return arr[i].X > val.X
+	})
+	arr = append(arr, val)
+	copy(arr[index+1:], arr[index:])
+	arr[index] = val
+	return index
 }
 
 func main() {
