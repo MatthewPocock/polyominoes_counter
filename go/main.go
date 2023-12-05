@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"runtime/pprof"
 	"strconv"
@@ -23,8 +24,8 @@ func CreateLattice(n int) *Graph {
 	}
 
 	for z := 1; z < n; z++ {
-		for x := -n + z + 1; x < n-z; x++ {
-			for y := -n + 1; y < n; y++ {
+		for y := -n + z + 1; y < n-z; y++ {
+			for x := -n + z + 1 + int(math.Abs(float64(y))); x < n-z-int(math.Abs(float64(y))); x++ {
 				node := Node{X: x, Y: y, Z: z}
 				latticeGraph.AddVertex(node)
 			}
