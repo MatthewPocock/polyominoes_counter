@@ -24,53 +24,41 @@ func CreateLattice(n int) *Graph {
 	return latticeGraph
 }
 
-func CountPolyominoes(graph *Graph, depth int, maxSize int, untriedSet []Node, cellsAdded []Node, path []Node) []int {
+func CountPolyominoes(graph *Graph, depth int, maxSize int, untriedSet []Node, cellsAdded []Node, oldNeighbours map[Node]int) []int {
 	newUntriedSet := make([]Node, len(untriedSet))
 	copy(newUntriedSet, untriedSet)
 
-	var oldNeighbours []Node
-	if len(newUntriedSet) != 0 && depth+1 < maxSize {
-		oldNeighbours = cellsAdded
-		for _, cell := range cellsAdded {
-			for _, neighbour := range graph.GetNeighbours(cell) {
-				oldNeighbours = append(oldNeighbours, neighbour)
-			}
-		}
-	}
 	elementCount := make([]int, maxSize)
 	for len(newUntriedSet) != 0 {
 		randomElement := newUntriedSet[len(newUntriedSet)-1] // step 1
 		newUntriedSet = newUntriedSet[:len(newUntriedSet)-1] // step 2
-		cellsAdded = append(cellsAdded, randomElement)
 
 		elementCount[depth]++ // Step 3
 
 		if depth+1 < maxSize { // Step 4
 			var newNeighbours []Node
 			for _, neighbour := range graph.GetNeighbours(randomElement) {
-				if !contains(oldNeighbours, neighbour) {
+				value, exists := oldNeighbours[neighbour]
+				if !exists || value == 0 {
 					newNeighbours = append(newNeighbours, neighbour)
 				}
 			}
-			newCounts := CountPolyominoes(graph, depth+1, maxSize, append(newUntriedSet, newNeighbours...), cellsAdded, append(path, randomElement))
+			for _, neighbour := range graph.GetNeighbours(randomElement) {
+				oldNeighbours[neighbour]++
+			}
+			newCounts := CountPolyominoes(graph, depth+1, maxSize, append(newUntriedSet, newNeighbours...), append(cellsAdded, randomElement), oldNeighbours)
 			for i := range elementCount {
 				elementCount[i] += newCounts[i]
 			}
+			for _, neighbour := range graph.GetNeighbours(randomElement) {
+				oldNeighbours[neighbour]--
+			}
+
 		} else {
-			//fmt.Printf("%v\n", append(path, randomElement))
+			//fmt.Printf("%v\n", append(cellsAdded, randomElement))
 		}
-		cellsAdded = cellsAdded[:len(cellsAdded)-1]
 	}
 	return elementCount
-}
-
-func contains(slice []Node, value Node) bool {
-	for _, v := range slice {
-		if v == value {
-			return true
-		}
-	}
-	return false
 }
 
 func main() {
@@ -107,8 +95,9 @@ func main() {
 	latticeGraph := CreateLattice(n)
 	//fmt.Printf("Lattice: %v\n", latticeGraph)
 	untriedSet := []Node{{X: 0, Y: 0}}
-	var cellsAdded []Node
-	var path []Node
-	count := CountPolyominoes(latticeGraph, 0, n, untriedSet, cellsAdded, path)
+	oldNeighbours := make(map[Node]int)
+	oldNeighbours[Node{X: 0, Y: 0}]++
+	cellsAdded := make([]Node, 0, n)
+	count := CountPolyominoes(latticeGraph, 0, n, untriedSet, cellsAdded, oldNeighbours)
 	fmt.Println(count)
 }
