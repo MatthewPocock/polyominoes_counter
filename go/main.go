@@ -24,6 +24,28 @@ func CreateLattice(n int) *Graph {
 	return latticeGraph
 }
 
+func isTaller(slice []Node) bool {
+	minWidth := 0
+	maxWidth := 0
+	minHeight := 0
+	maxHeight := 0
+	for _, node := range slice {
+		if node.X < minWidth {
+			minWidth = node.X
+		}
+		if node.X > maxWidth {
+			maxWidth = node.X
+		}
+		if node.Y < minHeight {
+			minHeight = node.Y
+		}
+		if node.Y > maxHeight {
+			maxHeight = node.Y
+		}
+	}
+	return maxHeight-minHeight >= maxWidth-minWidth
+}
+
 func CountPolyominoes(graph *Graph, depth int, maxSize int, untriedSet []Node, cellsAdded []Node, oldNeighbours map[Node]int) []int {
 	newUntriedSet := make([]Node, len(untriedSet))
 	copy(newUntriedSet, untriedSet)
@@ -55,6 +77,8 @@ func CountPolyominoes(graph *Graph, depth int, maxSize int, untriedSet []Node, c
 			}
 
 		} else {
+			//if isTaller(cellsAdded) {
+			//}
 			//fmt.Printf("%v\n", append(cellsAdded, randomElement))
 		}
 	}
