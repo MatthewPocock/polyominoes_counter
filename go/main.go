@@ -9,6 +9,8 @@ import (
 	"time"
 )
 
+var branchDepth int = 6
+
 func CreateLattice(n int) *Graph {
 	latticeGraph := NewGraph()
 
@@ -65,7 +67,7 @@ func CountPolyominoes(
 			for _, neighbour := range graph.GetNeighbours(randomElement) {
 				oldNeighbours[neighbour]++
 			}
-			if depth == 7 { // parallelDepth is the depth at which to start parallelization
+			if depth == branchDepth { // parallelDepth is the depth at which to start parallelization
 				wg.Add(1)
 				newOldNeighbours := copyMap(oldNeighbours)
 				untriedSetCopy := make([]Node, len(newUntriedSet))
@@ -87,7 +89,7 @@ func CountPolyominoes(
 			//fmt.Printf("%v\n", append(cellsAdded, randomElement))
 		}
 	}
-	if depth == 8 {
+	if depth == branchDepth+1 {
 		ch <- elementCount
 		wg.Done()
 	}
