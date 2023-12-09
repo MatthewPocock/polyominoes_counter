@@ -5,6 +5,7 @@ import (
 	"os"
 	"runtime/pprof"
 	"strconv"
+	"time"
 )
 
 func CreateLattice(n int) *Graph {
@@ -91,6 +92,7 @@ func main() {
 		fmt.Printf("Invalid input: %v\n", err)
 		return
 	}
+	startTime := time.Now()
 
 	latticeGraph := CreateLattice(n)
 	//fmt.Printf("Lattice: %v\n", latticeGraph)
@@ -100,4 +102,5 @@ func main() {
 	cellsAdded := make([]Node, 0, n)
 	count := CountPolyominoes(latticeGraph, 0, n, untriedSet, cellsAdded, oldNeighbours)
 	fmt.Println(count)
+	fmt.Println("Completed in:", time.Since(startTime))
 }
