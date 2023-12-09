@@ -5,6 +5,7 @@ import (
 	"os"
 	"runtime/pprof"
 	"strconv"
+	"sync"
 	"time"
 )
 
@@ -25,7 +26,24 @@ func CreateLattice(n int) *Graph {
 	return latticeGraph
 }
 
-func CountPolyominoes(graph *Graph, depth int, maxSize int, untriedSet []Node, cellsAdded []Node, oldNeighbours map[Node]int) []int {
+func copyMap(originalMap map[Node]int) map[Node]int {
+	newMap := make(map[Node]int)
+	for key, value := range originalMap {
+		newMap[key] = value
+	}
+	return newMap
+}
+
+func CountPolyominoes(
+	graph *Graph,
+	depth int,
+	maxSize int,
+	untriedSet []Node,
+	cellsAdded []Node,
+	oldNeighbours map[Node]int,
+	ch chan []int,
+	wg *sync.WaitGroup,
+) []int {
 	newUntriedSet := make([]Node, len(untriedSet))
 	copy(newUntriedSet, untriedSet)
 
@@ -47,9 +65,19 @@ func CountPolyominoes(graph *Graph, depth int, maxSize int, untriedSet []Node, c
 			for _, neighbour := range graph.GetNeighbours(randomElement) {
 				oldNeighbours[neighbour]++
 			}
-			newCounts := CountPolyominoes(graph, depth+1, maxSize, append(newUntriedSet, newNeighbours...), append(cellsAdded, randomElement), oldNeighbours)
-			for i := range elementCount {
-				elementCount[i] += newCounts[i]
+			if depth == 7 { // parallelDepth is the depth at which to start parallelization
+				wg.Add(1)
+				newOldNeighbours := copyMap(oldNeighbours)
+				untriedSetCopy := make([]Node, len(newUntriedSet))
+				copy(untriedSetCopy, newUntriedSet)
+				cellsAddedCopy := make([]Node, len(cellsAdded)+1)
+				copy(cellsAddedCopy, cellsAdded)
+				go CountPolyominoes(graph, depth+1, maxSize, append(untriedSetCopy, newNeighbours...), append(cellsAddedCopy, randomElement), newOldNeighbours, ch, wg)
+			} else {
+				newCounts := CountPolyominoes(graph, depth+1, maxSize, append(newUntriedSet, newNeighbours...), append(cellsAdded, randomElement), oldNeighbours, ch, wg)
+				for i := range elementCount {
+					elementCount[i] += newCounts[i]
+				}
 			}
 			for _, neighbour := range graph.GetNeighbours(randomElement) {
 				oldNeighbours[neighbour]--
@@ -57,6 +85,21 @@ func CountPolyominoes(graph *Graph, depth int, maxSize int, untriedSet []Node, c
 
 		} else {
 			//fmt.Printf("%v\n", append(cellsAdded, randomElement))
+		}
+	}
+	if depth == 8 {
+		ch <- elementCount
+		wg.Done()
+	}
+	if depth == 0 {
+		go func() {
+			wg.Wait()
+			close(ch)
+		}()
+		for result := range ch {
+			for i := range elementCount {
+				elementCount[i] += result[i]
+			}
 		}
 	}
 	return elementCount
@@ -96,11 +139,16 @@ func main() {
 
 	latticeGraph := CreateLattice(n)
 	//fmt.Printf("Lattice: %v\n", latticeGraph)
+
 	untriedSet := []Node{{X: 0, Y: 0}}
 	oldNeighbours := make(map[Node]int)
 	oldNeighbours[Node{X: 0, Y: 0}]++
 	cellsAdded := make([]Node, 0, n)
-	count := CountPolyominoes(latticeGraph, 0, n, untriedSet, cellsAdded, oldNeighbours)
+
+	ch := make(chan []int)
+	var wg sync.WaitGroup
+
+	count := CountPolyominoes(latticeGraph, 0, n, untriedSet, cellsAdded, oldNeighbours, ch, &wg)
 	fmt.Println(count)
 	fmt.Println("Completed in:", time.Since(startTime))
 }
