@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-var branchDepth int = 6
+var branchDepth int = 4
 
 func CreateLattice(n int) *Graph {
 	latticeGraph := NewGraph()
