@@ -70,9 +70,9 @@ func CountPolyominoes(
 			if depth == branchDepth { // parallelDepth is the depth at which to start parallelization
 				wg.Add(1)
 				newOldNeighbours := copyMap(oldNeighbours)
-				untriedSetCopy := make([]Node, len(newUntriedSet))
+				untriedSetCopy := make([]Node, len(newUntriedSet), len(newUntriedSet)+len(newNeighbours))
 				copy(untriedSetCopy, newUntriedSet)
-				cellsAddedCopy := make([]Node, len(cellsAdded)+1)
+				cellsAddedCopy := make([]Node, len(cellsAdded), len(cellsAdded)+1)
 				copy(cellsAddedCopy, cellsAdded)
 				go CountPolyominoes(graph, depth+1, maxSize, append(untriedSetCopy, newNeighbours...), append(cellsAddedCopy, randomElement), newOldNeighbours, ch, wg)
 			} else {
