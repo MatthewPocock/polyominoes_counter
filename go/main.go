@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"runtime/pprof"
+	"sort"
 	"strconv"
 	"sync"
 	"time"
@@ -36,6 +37,70 @@ func copyMap(originalMap map[Node]int) map[Node]int {
 	return newMap
 }
 
+func compareCodes(slice1, slice2 []int) int {
+	// returns -1 when slice 1 is less than slice 2
+	for i := 0; i < len(slice1); i++ {
+		if slice1[i] < slice2[i] {
+			return -1
+		} else if slice1[i] > slice2[i] {
+			return 1
+		}
+	}
+	return 0
+}
+
+func rotateNodes(nodes []Node) {
+	for i := range nodes {
+		nodes[i].X, nodes[i].Y = nodes[i].Y, -nodes[i].X
+	}
+}
+
+func getCode(nodes []Node) []int {
+	minW := 0
+	maxW := 0
+	maxH := 0
+	minH := 0
+	for _, node := range nodes {
+		if node.X < minW {
+			minW = node.X
+		}
+		if node.X > maxW {
+			maxW = node.X
+		}
+		if node.Y > maxH {
+			maxH = node.Y
+		}
+		if node.Y < minH {
+			minH = node.Y
+		}
+	}
+
+	squareSize := max(maxW-minW+1, maxH-minH+1)
+	var code []int
+	for _, node := range nodes {
+		code = append(code, node.X-minW+((maxH-node.Y)*squareSize))
+	}
+	sort.Ints(code)
+	return code
+}
+
+func isCanonical(nodes []Node) bool {
+	// get main code
+	code := getCode(nodes)
+	// get other codes
+	rotatedNodes := make([]Node, len(nodes))
+	copy(rotatedNodes, nodes)
+
+	for i := 0; i < 3; i++ {
+		//minWidth, maxHeight, maxWidth, minHeight = minHeight, -minWidth, maxHeight, -maxWidth
+		rotateNodes(rotatedNodes)
+		if compareCodes(code, getCode(rotatedNodes)) == 1 {
+			return false
+		}
+	}
+	return true
+}
+
 func CountPolyominoes(
 	graph *Graph,
 	depth int,
@@ -54,7 +119,10 @@ func CountPolyominoes(
 		randomElement := newUntriedSet[len(newUntriedSet)-1] // step 1
 		newUntriedSet = newUntriedSet[:len(newUntriedSet)-1] // step 2
 
-		elementCount[depth]++ // Step 3
+		if isCanonical(append(cellsAdded, randomElement)) {
+			elementCount[depth]++ // Step 3
+		}
+		//elementCount[depth]++ // Step 3
 
 		if depth+1 < maxSize { // Step 4
 			var newNeighbours []Node
