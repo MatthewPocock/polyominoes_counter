@@ -122,7 +122,6 @@ func isCanonical(nodes []Node) bool {
 	copy(rotatedNodes, nodes)
 
 	for i := 0; i < 4; i++ {
-		//minWidth, maxHeight, maxWidth, minHeight = minHeight, -minWidth, maxHeight, -maxWidth
 		if compareCodes(code, getCode(rotatedNodes)) == 1 {
 			return false
 		}
@@ -131,7 +130,6 @@ func isCanonical(nodes []Node) bool {
 
 	rotateNodes(rotatedNodes, 1)
 	for i := 0; i < 4; i++ {
-		//minWidth, maxHeight, maxWidth, minHeight = minHeight, -minWidth, maxHeight, -maxWidth
 		if compareCodes(code, getCode(rotatedNodes)) == 1 {
 			return false
 		}
@@ -140,7 +138,6 @@ func isCanonical(nodes []Node) bool {
 
 	rotateNodes(rotatedNodes, 1)
 	for i := 0; i < 4; i++ {
-		//minWidth, maxHeight, maxWidth, minHeight = minHeight, -minWidth, maxHeight, -maxWidth
 		if compareCodes(code, getCode(rotatedNodes)) == 1 {
 			return false
 		}
@@ -149,7 +146,6 @@ func isCanonical(nodes []Node) bool {
 
 	rotateNodes(rotatedNodes, 1)
 	for i := 0; i < 4; i++ {
-		//minWidth, maxHeight, maxWidth, minHeight = minHeight, -minWidth, maxHeight, -maxWidth
 		if compareCodes(code, getCode(rotatedNodes)) == 1 {
 			return false
 		}
@@ -159,7 +155,6 @@ func isCanonical(nodes []Node) bool {
 	rotateNodes(rotatedNodes, 1)
 	rotateNodes(rotatedNodes, 2)
 	for i := 0; i < 4; i++ {
-		//minWidth, maxHeight, maxWidth, minHeight = minHeight, -minWidth, maxHeight, -maxWidth
 		if compareCodes(code, getCode(rotatedNodes)) == 1 {
 			return false
 		}
@@ -168,7 +163,6 @@ func isCanonical(nodes []Node) bool {
 	rotateNodes(rotatedNodes, 2)
 	rotateNodes(rotatedNodes, 2)
 	for i := 0; i < 4; i++ {
-		//minWidth, maxHeight, maxWidth, minHeight = minHeight, -minWidth, maxHeight, -maxWidth
 		if compareCodes(code, getCode(rotatedNodes)) == 1 {
 			return false
 		}
