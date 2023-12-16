@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"runtime/pprof"
-	"sort"
 	"strconv"
 	"sync"
 	"time"
@@ -37,12 +36,12 @@ func copyMap(originalMap map[Node]int) map[Node]int {
 	return newMap
 }
 
-func compareCodes(slice1, slice2 []int) int {
+func compareCodes(slice1, slice2 []bool) int {
 	// returns -1 when slice 1 is less than slice 2
 	for i := 0; i < len(slice1); i++ {
-		if slice1[i] < slice2[i] {
+		if slice1[i] == true && slice2[i] != true {
 			return -1
-		} else if slice1[i] > slice2[i] {
+		} else if slice2[i] == true && slice1[i] != true {
 			return 1
 		}
 	}
@@ -55,7 +54,7 @@ func rotateNodes(nodes []Node) {
 	}
 }
 
-func getCode(nodes []Node) []int {
+func getCode(nodes []Node) []bool {
 	minW, maxW, maxH, minH := 0, 0, 0, 0
 	for _, node := range nodes {
 		if node.X < minW {
@@ -73,11 +72,11 @@ func getCode(nodes []Node) []int {
 	}
 
 	squareSize := max(maxW-minW+1, maxH-minH+1)
-	code := make([]int, len(nodes))
-	for i, node := range nodes {
-		code[i] = node.X - minW + ((maxH - node.Y) * squareSize)
+	code := make([]bool, squareSize*squareSize)
+	for _, node := range nodes {
+		index := node.X - minW + ((maxH - node.Y) * squareSize)
+		code[index] = true
 	}
-	sort.Ints(code)
 	return code
 }
 
