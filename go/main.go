@@ -48,7 +48,7 @@ func copyMap(originalMap map[Node]int) map[Node]int {
 	return newMap
 }
 
-func compareCodes(code1, code2 []int) int {
+func compareCodes(code1, code2 []uint32) int {
 	for i := 0; i < len(code1); i++ {
 		if code1[i] < code2[i] {
 			return -1
@@ -78,7 +78,7 @@ func rotateNodes(nodes []Node, axis int) {
 	}
 }
 
-func getCode(nodes []Node) []int {
+func getCode(nodes []Node) []uint32 {
 	minW, maxW, maxH, minH, minD, maxD := 0, 0, 0, 0, 0, 0
 	for _, node := range nodes {
 		if node.X < minW {
@@ -103,11 +103,13 @@ func getCode(nodes []Node) []int {
 
 	squareSize := max(maxW-minW+1, maxH-minH+1, maxD-minD+1)
 	totalBits := squareSize * squareSize * squareSize
-	code := make([]int, totalBits/64+1)
+	code := make([]uint32, totalBits/32+1)
+	var positionCode uint32
+	var bitmap uint32
 	for _, node := range nodes {
-		positionCode := (node.X - minW) + (maxH-node.Y)*squareSize + (maxD-node.Z)*squareSize*squareSize
-		bitmap := -9223372036854775808 >> (positionCode % 64)
-		code[positionCode/64] += bitmap
+		positionCode = uint32((node.X - minW) + (maxH-node.Y)*squareSize + (maxD-node.Z)*squareSize*squareSize)
+		bitmap = 2147483648 >> (positionCode % 32)
+		code[positionCode/32] += bitmap
 	}
 	return code
 }
