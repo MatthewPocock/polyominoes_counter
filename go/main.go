@@ -61,17 +61,27 @@ func compareCodes(slice1, slice2 []int) int {
 	return 0
 }
 
-func rotateNodes(nodes []Node) {
-	for i := range nodes {
-		nodes[i].X, nodes[i].Y = nodes[i].Y, -nodes[i].X
+func rotateNodes(nodes []Node, axis int) {
+	if axis == 0 {
+		for i := range nodes {
+			nodes[i].X, nodes[i].Y = nodes[i].Y, -nodes[i].X
+		}
+	}
+	if axis == 1 {
+		for i := range nodes {
+			nodes[i].X, nodes[i].Z = nodes[i].Z, -nodes[i].X
+		}
+	}
+	if axis == 2 {
+		for i := range nodes {
+			nodes[i].Z, nodes[i].Y = nodes[i].Y, -nodes[i].Z
+		}
+
 	}
 }
 
 func getCode(nodes []Node) []int {
-	minW := 0
-	maxW := 0
-	maxH := 0
-	minH := 0
+	minW, maxW, maxH, minH, minD, maxD := 0, 0, 0, 0, 0, 0
 	for _, node := range nodes {
 		if node.X < minW {
 			minW = node.X
@@ -85,12 +95,20 @@ func getCode(nodes []Node) []int {
 		if node.Y < minH {
 			minH = node.Y
 		}
+		if node.Z < minD {
+			minD = node.Z
+		}
+		if node.Z > maxD {
+			maxD = node.Z
+		}
 	}
 
 	squareSize := max(maxW-minW+1, maxH-minH+1)
+	cubeSize := squareSize * (maxD - minD + 1)
 	var code []int
 	for _, node := range nodes {
-		code = append(code, node.X-minW+((maxH-node.Y)*squareSize))
+		positionCode := (node.X - minW) + (maxH-node.Y)*squareSize + (maxD-node.Z)*cubeSize
+		code = append(code, positionCode)
 	}
 	sort.Ints(code)
 	return code
@@ -103,13 +121,60 @@ func isCanonical(nodes []Node) bool {
 	rotatedNodes := make([]Node, len(nodes))
 	copy(rotatedNodes, nodes)
 
-	for i := 0; i < 3; i++ {
+	for i := 0; i < 4; i++ {
 		//minWidth, maxHeight, maxWidth, minHeight = minHeight, -minWidth, maxHeight, -maxWidth
-		rotateNodes(rotatedNodes)
 		if compareCodes(code, getCode(rotatedNodes)) == 1 {
 			return false
 		}
+		rotateNodes(rotatedNodes, 0)
 	}
+
+	rotateNodes(rotatedNodes, 1)
+	for i := 0; i < 4; i++ {
+		//minWidth, maxHeight, maxWidth, minHeight = minHeight, -minWidth, maxHeight, -maxWidth
+		if compareCodes(code, getCode(rotatedNodes)) == 1 {
+			return false
+		}
+		rotateNodes(rotatedNodes, 0)
+	}
+
+	rotateNodes(rotatedNodes, 1)
+	for i := 0; i < 4; i++ {
+		//minWidth, maxHeight, maxWidth, minHeight = minHeight, -minWidth, maxHeight, -maxWidth
+		if compareCodes(code, getCode(rotatedNodes)) == 1 {
+			return false
+		}
+		rotateNodes(rotatedNodes, 0)
+	}
+
+	rotateNodes(rotatedNodes, 1)
+	for i := 0; i < 4; i++ {
+		//minWidth, maxHeight, maxWidth, minHeight = minHeight, -minWidth, maxHeight, -maxWidth
+		if compareCodes(code, getCode(rotatedNodes)) == 1 {
+			return false
+		}
+		rotateNodes(rotatedNodes, 0)
+	}
+
+	rotateNodes(rotatedNodes, 1)
+	rotateNodes(rotatedNodes, 2)
+	for i := 0; i < 4; i++ {
+		//minWidth, maxHeight, maxWidth, minHeight = minHeight, -minWidth, maxHeight, -maxWidth
+		if compareCodes(code, getCode(rotatedNodes)) == 1 {
+			return false
+		}
+		rotateNodes(rotatedNodes, 0)
+	}
+	rotateNodes(rotatedNodes, 2)
+	rotateNodes(rotatedNodes, 2)
+	for i := 0; i < 4; i++ {
+		//minWidth, maxHeight, maxWidth, minHeight = minHeight, -minWidth, maxHeight, -maxWidth
+		if compareCodes(code, getCode(rotatedNodes)) == 1 {
+			return false
+		}
+		rotateNodes(rotatedNodes, 0)
+	}
+
 	return true
 }
 
