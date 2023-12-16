@@ -103,11 +103,10 @@ func getCode(nodes []Node) []int {
 		}
 	}
 
-	squareSize := max(maxW-minW+1, maxH-minH+1)
-	cubeSize := squareSize * (maxD - minD + 1)
+	squareSize := max(maxW-minW+1, maxH-minH+1, maxD-minD+1)
 	var code []int
 	for _, node := range nodes {
-		positionCode := (node.X - minW) + (maxH-node.Y)*squareSize + (maxD-node.Z)*cubeSize
+		positionCode := (node.X - minW) + (maxH-node.Y)*squareSize + (maxD-node.Z)*squareSize*squareSize
 		code = append(code, positionCode)
 	}
 	sort.Ints(code)
