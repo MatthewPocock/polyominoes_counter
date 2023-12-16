@@ -74,12 +74,37 @@ func rotateNodes(nodes []Node, axis int) {
 		for i := range nodes {
 			nodes[i].Z, nodes[i].Y = nodes[i].Y, -nodes[i].Z
 		}
-
 	}
 }
 
-func getCode(nodes []Node) []uint32 {
-	minW, maxW, maxH, minH, minD, maxD := 0, 0, 0, 0, 0, 0
+func rotateBoundary(axis int, minW, maxW, minH, maxH, minD, maxD *int) {
+	if axis == 0 {
+		*maxH, *maxW, *minH, *minW = -*minW, *maxH, -*maxW, *minH
+	}
+	if axis == 1 {
+		*maxD, *maxW, *minD, *minW = -*minW, *maxD, -*maxW, *minD
+	}
+	if axis == 2 {
+		*maxH, *maxD, *minH, *minD = -*minD, *maxH, -*maxD, *minH
+	}
+}
+
+func getCode(nodes []Node, minW, maxW, minH, maxH, minD, maxD int) []uint32 {
+	squareSize := max(maxW-minW+1, maxH-minH+1, maxD-minD+1)
+	totalBits := squareSize * squareSize * squareSize
+	code := make([]uint32, totalBits/32+1)
+	var positionCode uint32
+	var bitmap uint32
+	for _, node := range nodes {
+		positionCode = uint32((node.X - minW) + (maxH-node.Y)*squareSize + (maxD-node.Z)*squareSize*squareSize)
+		bitmap = 2147483648 >> (positionCode % 32)
+		code[positionCode/32] += bitmap
+	}
+	return code
+}
+
+func isCanonical(nodes []Node) bool {
+	minW, maxW, minH, maxH, minD, maxD := 0, 0, 0, 0, 0, 0
 	for _, node := range nodes {
 		if node.X < minW {
 			minW = node.X
@@ -101,72 +126,69 @@ func getCode(nodes []Node) []uint32 {
 		}
 	}
 
-	squareSize := max(maxW-minW+1, maxH-minH+1, maxD-minD+1)
-	totalBits := squareSize * squareSize * squareSize
-	code := make([]uint32, totalBits/32+1)
-	var positionCode uint32
-	var bitmap uint32
-	for _, node := range nodes {
-		positionCode = uint32((node.X - minW) + (maxH-node.Y)*squareSize + (maxD-node.Z)*squareSize*squareSize)
-		bitmap = 2147483648 >> (positionCode % 32)
-		code[positionCode/32] += bitmap
-	}
-	return code
-}
-
-func isCanonical(nodes []Node) bool {
-	// get main code
-	code := getCode(nodes)
-	// get other codes
+	code := getCode(nodes, minW, maxW, minH, maxH, minD, maxD)
 	rotatedNodes := make([]Node, len(nodes))
 	copy(rotatedNodes, nodes)
 
 	for i := 0; i < 4; i++ {
-		if compareCodes(code, getCode(rotatedNodes)) == 1 {
+		if compareCodes(code, getCode(rotatedNodes, minW, maxW, minH, maxH, minD, maxD)) == 1 {
 			return false
 		}
 		rotateNodes(rotatedNodes, 0)
+		rotateBoundary(0, &minW, &maxW, &minH, &maxH, &minD, &maxD)
 	}
 
 	rotateNodes(rotatedNodes, 1)
+	rotateBoundary(1, &minW, &maxW, &minH, &maxH, &minD, &maxD)
 	for i := 0; i < 4; i++ {
-		if compareCodes(code, getCode(rotatedNodes)) == 1 {
+		if compareCodes(code, getCode(rotatedNodes, minW, maxW, minH, maxH, minD, maxD)) == 1 {
 			return false
 		}
 		rotateNodes(rotatedNodes, 0)
+		rotateBoundary(0, &minW, &maxW, &minH, &maxH, &minD, &maxD)
 	}
 
 	rotateNodes(rotatedNodes, 1)
+	rotateBoundary(1, &minW, &maxW, &minH, &maxH, &minD, &maxD)
 	for i := 0; i < 4; i++ {
-		if compareCodes(code, getCode(rotatedNodes)) == 1 {
+		if compareCodes(code, getCode(rotatedNodes, minW, maxW, minH, maxH, minD, maxD)) == 1 {
 			return false
 		}
 		rotateNodes(rotatedNodes, 0)
+		rotateBoundary(0, &minW, &maxW, &minH, &maxH, &minD, &maxD)
 	}
 
 	rotateNodes(rotatedNodes, 1)
+	rotateBoundary(1, &minW, &maxW, &minH, &maxH, &minD, &maxD)
 	for i := 0; i < 4; i++ {
-		if compareCodes(code, getCode(rotatedNodes)) == 1 {
+		if compareCodes(code, getCode(rotatedNodes, minW, maxW, minH, maxH, minD, maxD)) == 1 {
 			return false
 		}
 		rotateNodes(rotatedNodes, 0)
+		rotateBoundary(0, &minW, &maxW, &minH, &maxH, &minD, &maxD)
 	}
 
 	rotateNodes(rotatedNodes, 1)
+	rotateBoundary(1, &minW, &maxW, &minH, &maxH, &minD, &maxD)
 	rotateNodes(rotatedNodes, 2)
+	rotateBoundary(2, &minW, &maxW, &minH, &maxH, &minD, &maxD)
 	for i := 0; i < 4; i++ {
-		if compareCodes(code, getCode(rotatedNodes)) == 1 {
+		if compareCodes(code, getCode(rotatedNodes, minW, maxW, minH, maxH, minD, maxD)) == 1 {
 			return false
 		}
 		rotateNodes(rotatedNodes, 0)
+		rotateBoundary(0, &minW, &maxW, &minH, &maxH, &minD, &maxD)
 	}
 	rotateNodes(rotatedNodes, 2)
+	rotateBoundary(2, &minW, &maxW, &minH, &maxH, &minD, &maxD)
 	rotateNodes(rotatedNodes, 2)
+	rotateBoundary(2, &minW, &maxW, &minH, &maxH, &minD, &maxD)
 	for i := 0; i < 4; i++ {
-		if compareCodes(code, getCode(rotatedNodes)) == 1 {
+		if compareCodes(code, getCode(rotatedNodes, minW, maxW, minH, maxH, minD, maxD)) == 1 {
 			return false
 		}
 		rotateNodes(rotatedNodes, 0)
+		rotateBoundary(0, &minW, &maxW, &minH, &maxH, &minD, &maxD)
 	}
 
 	return true
