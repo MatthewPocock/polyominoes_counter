@@ -48,11 +48,11 @@ func copyMap(originalMap map[Node]int) map[Node]int {
 	return newMap
 }
 
-func compareCodes(slice1, slice2 []bool) int {
-	for i := 0; i < len(slice1); i++ {
-		if slice1[i] == true && slice2[i] != true {
+func compareCodes(code1, code2 []int) int {
+	for i := 0; i < len(code1); i++ {
+		if code1[i] < code2[i] {
 			return -1
-		} else if slice2[i] == true && slice1[i] != true {
+		} else if code1[i] > code2[i] {
 			return 1
 		}
 	}
@@ -78,7 +78,7 @@ func rotateNodes(nodes []Node, axis int) {
 	}
 }
 
-func getCode(nodes []Node) []bool {
+func getCode(nodes []Node) []int {
 	minW, maxW, maxH, minH, minD, maxD := 0, 0, 0, 0, 0, 0
 	for _, node := range nodes {
 		if node.X < minW {
@@ -102,10 +102,12 @@ func getCode(nodes []Node) []bool {
 	}
 
 	squareSize := max(maxW-minW+1, maxH-minH+1, maxD-minD+1)
-	code := make([]bool, squareSize*squareSize*squareSize)
+	totalBits := squareSize * squareSize * squareSize
+	code := make([]int, totalBits/64+1)
 	for _, node := range nodes {
 		positionCode := (node.X - minW) + (maxH-node.Y)*squareSize + (maxD-node.Z)*squareSize*squareSize
-		code[positionCode] = true
+		bitmap := -9223372036854775808 >> (positionCode % 64)
+		code[positionCode/64] += bitmap
 	}
 	return code
 }
