@@ -56,10 +56,7 @@ func rotateNodes(nodes []Node) {
 }
 
 func getCode(nodes []Node) []int {
-	minW := 0
-	maxW := 0
-	maxH := 0
-	minH := 0
+	minW, maxW, maxH, minH := 0, 0, 0, 0
 	for _, node := range nodes {
 		if node.X < minW {
 			minW = node.X
