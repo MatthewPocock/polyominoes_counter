@@ -89,10 +89,11 @@ func rotateBoundary(axis int, minW, maxW, minH, maxH, minD, maxD *int) {
 	}
 }
 
-func getCode(nodes []Node, minW, maxW, minH, maxH, minD, maxD int) []uint32 {
+func getCode(code []uint32, nodes []Node, minW, maxW, minH, maxH, minD, maxD int) {
+	for i := range code {
+		code[i] = 0
+	}
 	squareSize := max(maxW-minW+1, maxH-minH+1, maxD-minD+1)
-	totalBits := squareSize * squareSize * squareSize
-	code := make([]uint32, totalBits/32+1)
 	var positionCode uint32
 	var bitmap uint32
 	for _, node := range nodes {
@@ -100,7 +101,6 @@ func getCode(nodes []Node, minW, maxW, minH, maxH, minD, maxD int) []uint32 {
 		bitmap = 2147483648 >> (positionCode % 32)
 		code[positionCode/32] += bitmap
 	}
-	return code
 }
 
 func isCanonical(nodes []Node) bool {
@@ -125,13 +125,18 @@ func isCanonical(nodes []Node) bool {
 			maxD = node.Z
 		}
 	}
+	squareSize := max(maxW-minW+1, maxH-minH+1, maxD-minD+1)
+	totalBits := squareSize * squareSize * squareSize
 
-	code := getCode(nodes, minW, maxW, minH, maxH, minD, maxD)
+	code := make([]uint32, totalBits/32+1)
+	comparisonCode := make([]uint32, totalBits/32+1)
+	getCode(code, nodes, minW, maxW, minH, maxH, minD, maxD)
 	rotatedNodes := make([]Node, len(nodes))
 	copy(rotatedNodes, nodes)
 
 	for i := 0; i < 4; i++ {
-		if compareCodes(code, getCode(rotatedNodes, minW, maxW, minH, maxH, minD, maxD)) == 1 {
+		getCode(comparisonCode, rotatedNodes, minW, maxW, minH, maxH, minD, maxD)
+		if compareCodes(code, comparisonCode) == 1 {
 			return false
 		}
 		rotateNodes(rotatedNodes, 0)
@@ -141,7 +146,8 @@ func isCanonical(nodes []Node) bool {
 	rotateNodes(rotatedNodes, 1)
 	rotateBoundary(1, &minW, &maxW, &minH, &maxH, &minD, &maxD)
 	for i := 0; i < 4; i++ {
-		if compareCodes(code, getCode(rotatedNodes, minW, maxW, minH, maxH, minD, maxD)) == 1 {
+		getCode(comparisonCode, rotatedNodes, minW, maxW, minH, maxH, minD, maxD)
+		if compareCodes(code, comparisonCode) == 1 {
 			return false
 		}
 		rotateNodes(rotatedNodes, 0)
@@ -151,7 +157,8 @@ func isCanonical(nodes []Node) bool {
 	rotateNodes(rotatedNodes, 1)
 	rotateBoundary(1, &minW, &maxW, &minH, &maxH, &minD, &maxD)
 	for i := 0; i < 4; i++ {
-		if compareCodes(code, getCode(rotatedNodes, minW, maxW, minH, maxH, minD, maxD)) == 1 {
+		getCode(comparisonCode, rotatedNodes, minW, maxW, minH, maxH, minD, maxD)
+		if compareCodes(code, comparisonCode) == 1 {
 			return false
 		}
 		rotateNodes(rotatedNodes, 0)
@@ -161,7 +168,8 @@ func isCanonical(nodes []Node) bool {
 	rotateNodes(rotatedNodes, 1)
 	rotateBoundary(1, &minW, &maxW, &minH, &maxH, &minD, &maxD)
 	for i := 0; i < 4; i++ {
-		if compareCodes(code, getCode(rotatedNodes, minW, maxW, minH, maxH, minD, maxD)) == 1 {
+		getCode(comparisonCode, rotatedNodes, minW, maxW, minH, maxH, minD, maxD)
+		if compareCodes(code, comparisonCode) == 1 {
 			return false
 		}
 		rotateNodes(rotatedNodes, 0)
@@ -173,7 +181,8 @@ func isCanonical(nodes []Node) bool {
 	rotateNodes(rotatedNodes, 2)
 	rotateBoundary(2, &minW, &maxW, &minH, &maxH, &minD, &maxD)
 	for i := 0; i < 4; i++ {
-		if compareCodes(code, getCode(rotatedNodes, minW, maxW, minH, maxH, minD, maxD)) == 1 {
+		getCode(comparisonCode, rotatedNodes, minW, maxW, minH, maxH, minD, maxD)
+		if compareCodes(code, comparisonCode) == 1 {
 			return false
 		}
 		rotateNodes(rotatedNodes, 0)
@@ -184,7 +193,8 @@ func isCanonical(nodes []Node) bool {
 	rotateNodes(rotatedNodes, 2)
 	rotateBoundary(2, &minW, &maxW, &minH, &maxH, &minD, &maxD)
 	for i := 0; i < 4; i++ {
-		if compareCodes(code, getCode(rotatedNodes, minW, maxW, minH, maxH, minD, maxD)) == 1 {
+		getCode(comparisonCode, rotatedNodes, minW, maxW, minH, maxH, minD, maxD)
+		if compareCodes(code, comparisonCode) == 1 {
 			return false
 		}
 		rotateNodes(rotatedNodes, 0)
