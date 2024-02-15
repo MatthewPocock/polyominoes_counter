@@ -103,7 +103,11 @@ func getCode(code []uint32, nodes []Node, minW, maxW, minH, maxH, minD, maxD int
 	}
 }
 
-func isCanonical(nodes []Node) bool {
+func isCanonical(nodes []Node) int {
+	// TODO: Needs total rewrite. Slowest part of code and extremely verbose
+	result := 0
+
+	// find dimensions of polycube
 	minW, maxW, minH, maxH, minD, maxD := 0, 0, 0, 0, 0, 0
 	for _, node := range nodes {
 		if node.X < minW {
@@ -128,16 +132,19 @@ func isCanonical(nodes []Node) bool {
 	squareSize := max(maxW-minW+1, maxH-minH+1, maxD-minD+1)
 	totalBits := squareSize * squareSize * squareSize
 
+	// get unique code of polycube
 	code := make([]uint32, totalBits/32+1)
 	comparisonCode := make([]uint32, totalBits/32+1)
 	getCode(code, nodes, minW, maxW, minH, maxH, minD, maxD)
+
+	// compare with codes of rotated polycubes
 	rotatedNodes := make([]Node, len(nodes))
 	copy(rotatedNodes, nodes)
 
 	for i := 0; i < 4; i++ {
 		getCode(comparisonCode, rotatedNodes, minW, maxW, minH, maxH, minD, maxD)
 		if compareCodes(code, comparisonCode) == 1 {
-			return false
+			return result
 		}
 		rotateNodes(rotatedNodes, 0)
 		rotateBoundary(0, &minW, &maxW, &minH, &maxH, &minD, &maxD)
@@ -148,7 +155,7 @@ func isCanonical(nodes []Node) bool {
 	for i := 0; i < 4; i++ {
 		getCode(comparisonCode, rotatedNodes, minW, maxW, minH, maxH, minD, maxD)
 		if compareCodes(code, comparisonCode) == 1 {
-			return false
+			return result
 		}
 		rotateNodes(rotatedNodes, 0)
 		rotateBoundary(0, &minW, &maxW, &minH, &maxH, &minD, &maxD)
@@ -159,7 +166,7 @@ func isCanonical(nodes []Node) bool {
 	for i := 0; i < 4; i++ {
 		getCode(comparisonCode, rotatedNodes, minW, maxW, minH, maxH, minD, maxD)
 		if compareCodes(code, comparisonCode) == 1 {
-			return false
+			return result
 		}
 		rotateNodes(rotatedNodes, 0)
 		rotateBoundary(0, &minW, &maxW, &minH, &maxH, &minD, &maxD)
@@ -170,7 +177,7 @@ func isCanonical(nodes []Node) bool {
 	for i := 0; i < 4; i++ {
 		getCode(comparisonCode, rotatedNodes, minW, maxW, minH, maxH, minD, maxD)
 		if compareCodes(code, comparisonCode) == 1 {
-			return false
+			return result
 		}
 		rotateNodes(rotatedNodes, 0)
 		rotateBoundary(0, &minW, &maxW, &minH, &maxH, &minD, &maxD)
@@ -183,7 +190,7 @@ func isCanonical(nodes []Node) bool {
 	for i := 0; i < 4; i++ {
 		getCode(comparisonCode, rotatedNodes, minW, maxW, minH, maxH, minD, maxD)
 		if compareCodes(code, comparisonCode) == 1 {
-			return false
+			return result
 		}
 		rotateNodes(rotatedNodes, 0)
 		rotateBoundary(0, &minW, &maxW, &minH, &maxH, &minD, &maxD)
@@ -195,13 +202,112 @@ func isCanonical(nodes []Node) bool {
 	for i := 0; i < 4; i++ {
 		getCode(comparisonCode, rotatedNodes, minW, maxW, minH, maxH, minD, maxD)
 		if compareCodes(code, comparisonCode) == 1 {
-			return false
+			return result
+		}
+		rotateNodes(rotatedNodes, 0)
+		rotateBoundary(0, &minW, &maxW, &minH, &maxH, &minD, &maxD)
+	}
+	result++
+
+	// compare with codes of rotated polycubes
+	//rotatedNodes = make([]Node, len(nodes))
+	copy(rotatedNodes, nodes)
+
+	for i := range rotatedNodes {
+		rotatedNodes[i].X = -rotatedNodes[i].X
+	}
+
+	// compare with codes of inverted rotated polycubes
+	minW, maxW, minH, maxH, minD, maxD = 0, 0, 0, 0, 0, 0
+	for _, node := range rotatedNodes {
+		if node.X < minW {
+			minW = node.X
+		}
+		if node.X > maxW {
+			maxW = node.X
+		}
+		if node.Y > maxH {
+			maxH = node.Y
+		}
+		if node.Y < minH {
+			minH = node.Y
+		}
+		if node.Z < minD {
+			minD = node.Z
+		}
+		if node.Z > maxD {
+			maxD = node.Z
+		}
+	}
+
+	for i := 0; i < 4; i++ {
+		getCode(comparisonCode, rotatedNodes, minW, maxW, minH, maxH, minD, maxD)
+		if compareCodes(code, comparisonCode) == 1 {
+			return result
 		}
 		rotateNodes(rotatedNodes, 0)
 		rotateBoundary(0, &minW, &maxW, &minH, &maxH, &minD, &maxD)
 	}
 
-	return true
+	rotateNodes(rotatedNodes, 1)
+	rotateBoundary(1, &minW, &maxW, &minH, &maxH, &minD, &maxD)
+	for i := 0; i < 4; i++ {
+		getCode(comparisonCode, rotatedNodes, minW, maxW, minH, maxH, minD, maxD)
+		if compareCodes(code, comparisonCode) == 1 {
+			return result
+		}
+		rotateNodes(rotatedNodes, 0)
+		rotateBoundary(0, &minW, &maxW, &minH, &maxH, &minD, &maxD)
+	}
+
+	rotateNodes(rotatedNodes, 1)
+	rotateBoundary(1, &minW, &maxW, &minH, &maxH, &minD, &maxD)
+	for i := 0; i < 4; i++ {
+		getCode(comparisonCode, rotatedNodes, minW, maxW, minH, maxH, minD, maxD)
+		if compareCodes(code, comparisonCode) == 1 {
+			return result
+		}
+		rotateNodes(rotatedNodes, 0)
+		rotateBoundary(0, &minW, &maxW, &minH, &maxH, &minD, &maxD)
+	}
+
+	rotateNodes(rotatedNodes, 1)
+	rotateBoundary(1, &minW, &maxW, &minH, &maxH, &minD, &maxD)
+	for i := 0; i < 4; i++ {
+		getCode(comparisonCode, rotatedNodes, minW, maxW, minH, maxH, minD, maxD)
+		if compareCodes(code, comparisonCode) == 1 {
+			return result
+		}
+		rotateNodes(rotatedNodes, 0)
+		rotateBoundary(0, &minW, &maxW, &minH, &maxH, &minD, &maxD)
+	}
+
+	rotateNodes(rotatedNodes, 1)
+	rotateBoundary(1, &minW, &maxW, &minH, &maxH, &minD, &maxD)
+	rotateNodes(rotatedNodes, 2)
+	rotateBoundary(2, &minW, &maxW, &minH, &maxH, &minD, &maxD)
+	for i := 0; i < 4; i++ {
+		getCode(comparisonCode, rotatedNodes, minW, maxW, minH, maxH, minD, maxD)
+		if compareCodes(code, comparisonCode) == 1 {
+			return result
+		}
+		rotateNodes(rotatedNodes, 0)
+		rotateBoundary(0, &minW, &maxW, &minH, &maxH, &minD, &maxD)
+	}
+	rotateNodes(rotatedNodes, 2)
+	rotateBoundary(2, &minW, &maxW, &minH, &maxH, &minD, &maxD)
+	rotateNodes(rotatedNodes, 2)
+	rotateBoundary(2, &minW, &maxW, &minH, &maxH, &minD, &maxD)
+	for i := 0; i < 4; i++ {
+		getCode(comparisonCode, rotatedNodes, minW, maxW, minH, maxH, minD, maxD)
+		if compareCodes(code, comparisonCode) == 1 {
+			return result
+		}
+		rotateNodes(rotatedNodes, 0)
+		rotateBoundary(0, &minW, &maxW, &minH, &maxH, &minD, &maxD)
+	}
+	result++
+	return result
 }
 
 func CountPolyominoes(
@@ -211,21 +317,32 @@ func CountPolyominoes(
 	untriedSet []Node,
 	cellsAdded []Node,
 	oldNeighbours map[Node]int,
-	ch chan []int,
+	ch chan map[string][]int,
 	wg *sync.WaitGroup,
-) []int {
+) map[string][]int {
 	newUntriedSet := make([]Node, len(untriedSet))
 	copy(newUntriedSet, untriedSet)
 
-	elementCount := make([]int, maxSize)
+	elementCount := map[string][]int{
+		"fixed":  make([]int, maxSize),
+		"free3d": make([]int, maxSize),
+		"free4d": make([]int, maxSize),
+	}
+
 	for len(newUntriedSet) != 0 {
 		randomElement := newUntriedSet[len(newUntriedSet)-1] // step 1
 		newUntriedSet = newUntriedSet[:len(newUntriedSet)-1] // step 2
 
-		if isCanonical(append(cellsAdded, randomElement)) {
-			elementCount[depth]++ // Step 3
+		// step 3
+		canonicalForms := isCanonical(append(cellsAdded, randomElement))
+		if canonicalForms == 1 {
+			elementCount["free3d"][depth]++
+
+		} else if canonicalForms == 2 {
+			elementCount["free3d"][depth]++
+			elementCount["free4d"][depth]++
 		}
-		//elementCount[depth]++ // Step 3
+		elementCount["fixed"][depth]++
 
 		if depth+1 < maxSize { // Step 4
 			var newNeighbours []Node
@@ -248,8 +365,10 @@ func CountPolyominoes(
 				go CountPolyominoes(graph, depth+1, maxSize, append(untriedSetCopy, newNeighbours...), append(cellsAddedCopy, randomElement), newOldNeighbours, ch, wg)
 			} else {
 				newCounts := CountPolyominoes(graph, depth+1, maxSize, append(newUntriedSet, newNeighbours...), append(cellsAdded, randomElement), oldNeighbours, ch, wg)
-				for i := range elementCount {
-					elementCount[i] += newCounts[i]
+				for i := range elementCount["fixed"] {
+					elementCount["fixed"][i] += newCounts["fixed"][i]
+					elementCount["free3d"][i] += newCounts["free3d"][i]
+					elementCount["free4d"][i] += newCounts["free4d"][i]
 				}
 			}
 			for _, neighbour := range graph.GetNeighbours(randomElement) {
@@ -270,8 +389,10 @@ func CountPolyominoes(
 			close(ch)
 		}()
 		for result := range ch {
-			for i := range elementCount {
-				elementCount[i] += result[i]
+			for i := range elementCount["fixed"] {
+				elementCount["fixed"][i] += result["fixed"][i]
+				elementCount["free3d"][i] += result["free3d"][i]
+				elementCount["free4d"][i] += result["free4d"][i]
 			}
 		}
 	}
@@ -318,7 +439,7 @@ func main() {
 	oldNeighbours[Node{X: 0, Y: 0, Z: 0}]++
 	cellsAdded := make([]Node, 0, n)
 
-	ch := make(chan []int)
+	ch := make(chan map[string][]int)
 	var wg sync.WaitGroup
 
 	count := CountPolyominoes(latticeGraph, 0, n, untriedSet, cellsAdded, oldNeighbours, ch, &wg)
