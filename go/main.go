@@ -394,7 +394,7 @@ func CountPolyominoes(
 				elementCount["free3d"][i] += result["free3d"][i]
 				elementCount["free4d"][i] += result["free4d"][i]
 			}
-			fmt.Printf("\rTotal counts: \n\tFixed: %v\n\tFree3D: %v\n\tFree4D: %v", elementCount["fixed"], elementCount["free3d"], elementCount["free4d"])
+			fmt.Printf("Total counts: \n\tFixed: %v\n\tFree3D: %v\n\tFree4D: %v", elementCount["fixed"], elementCount["free3d"], elementCount["free4d"])
 			fmt.Printf("\r\033[%dA", 3)
 		}
 	}
