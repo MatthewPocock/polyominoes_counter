@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-var branchDepth int = 4
+var branchDepth = 4
 
 func CreateLattice(n int) *Graph {
 	latticeGraph := NewGraph()
@@ -394,6 +394,7 @@ func CountPolyominoes(
 				elementCount["free3d"][i] += result["free3d"][i]
 				elementCount["free4d"][i] += result["free4d"][i]
 			}
+			fmt.Printf("\rTotal counts - Fixed: %v, Free3D: %v, Free4D: %v", elementCount["fixed"], elementCount["free3d"], elementCount["free4d"])
 		}
 	}
 	return elementCount
@@ -443,6 +444,6 @@ func main() {
 	var wg sync.WaitGroup
 
 	count := CountPolyominoes(latticeGraph, 0, n, untriedSet, cellsAdded, oldNeighbours, ch, &wg)
-	fmt.Println(count)
+	fmt.Printf("\rTotal counts - Fixed: %v, Free3D: %v, Free4D: %v\n", count["fixed"], count["free3d"], count["free4d"])
 	fmt.Println("Completed in:", time.Since(startTime))
 }
