@@ -394,7 +394,8 @@ func CountPolyominoes(
 				elementCount["free3d"][i] += result["free3d"][i]
 				elementCount["free4d"][i] += result["free4d"][i]
 			}
-			fmt.Printf("\rTotal counts - Fixed: %v, Free3D: %v, Free4D: %v", elementCount["fixed"], elementCount["free3d"], elementCount["free4d"])
+			fmt.Printf("\rTotal counts: \n\tFixed: %v\n\tFree3D: %v\n\tFree4D: %v", elementCount["fixed"], elementCount["free3d"], elementCount["free4d"])
+			fmt.Printf("\r\033[%dA", 3)
 		}
 	}
 	return elementCount
@@ -444,6 +445,6 @@ func main() {
 	var wg sync.WaitGroup
 
 	count := CountPolyominoes(latticeGraph, 0, n, untriedSet, cellsAdded, oldNeighbours, ch, &wg)
-	fmt.Printf("\rTotal counts - Fixed: %v, Free3D: %v, Free4D: %v\n", count["fixed"], count["free3d"], count["free4d"])
+	fmt.Printf("Total counts: \n\tFixed: %v\n\tFree3D: %v\n\tFree4D: %v\n", count["fixed"], count["free3d"], count["free4d"])
 	fmt.Println("Completed in:", time.Since(startTime))
 }
