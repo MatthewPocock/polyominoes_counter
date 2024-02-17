@@ -104,7 +104,7 @@ func getCode(code []uint32, nodes []Node, minW, maxW, minH, maxH, minD, maxD int
 }
 
 func isCanonical(nodes []Node) int {
-	// TODO: Needs total rewrite. Slowest part of code and extremely verbose
+	// Needs total rewrite. Slowest part of code and extremely verbose
 	result := 0
 
 	// find dimensions of polycube
@@ -444,6 +444,8 @@ func main() {
 	ch := make(chan map[string][]int)
 	var wg sync.WaitGroup
 
+	fmt.Printf("Total counts: \n\tFixed: []\n\tFree3D: []\n\tFree4D: []")
+	fmt.Printf("\r\033[%dA", 3)
 	count := CountPolyominoes(latticeGraph, 0, n, untriedSet, cellsAdded, oldNeighbours, ch, &wg)
 	fmt.Printf("Total counts: \n\tFixed: %v\n\tFree3D: %v\n\tFree4D: %v\n", count["fixed"], count["free3d"], count["free4d"])
 	fmt.Println("Completed in:", time.Since(startTime))
