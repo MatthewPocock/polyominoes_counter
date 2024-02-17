@@ -7,10 +7,40 @@ import (
 	"runtime/pprof"
 	"strconv"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
 var branchDepth = 4
+
+type ProgressWaitGroup struct {
+	wg        sync.WaitGroup
+	total     int64
+	completed int64
+	mu        sync.Mutex // Protects access to completed
+}
+
+func (pwg *ProgressWaitGroup) Add(delta int) {
+	pwg.wg.Add(delta)
+	atomic.AddInt64(&pwg.total, int64(delta))
+}
+
+func (pwg *ProgressWaitGroup) Done() {
+	pwg.wg.Done()
+	pwg.mu.Lock()
+	pwg.completed++
+	pwg.mu.Unlock()
+}
+
+func (pwg *ProgressWaitGroup) Wait() {
+	pwg.wg.Wait()
+}
+
+func (pwg *ProgressWaitGroup) Progress() float64 {
+	pwg.mu.Lock()
+	defer pwg.mu.Unlock()
+	return float64(pwg.completed) / float64(pwg.total)
+}
 
 func CreateLattice(n int) *Graph {
 	latticeGraph := NewGraph()
@@ -318,7 +348,7 @@ func CountPolyominoes(
 	cellsAdded []Node,
 	oldNeighbours map[Node]int,
 	ch chan map[string][]int,
-	wg *sync.WaitGroup,
+	wg *ProgressWaitGroup,
 ) map[string][]int {
 	newUntriedSet := make([]Node, len(untriedSet))
 	copy(newUntriedSet, untriedSet)
@@ -394,7 +424,7 @@ func CountPolyominoes(
 				elementCount["free3d"][i] += result["free3d"][i]
 				elementCount["free4d"][i] += result["free4d"][i]
 			}
-			fmt.Printf("Total counts: \n\tFixed: %v\n\tFree3D: %v\n\tFree4D: %v", elementCount["fixed"], elementCount["free3d"], elementCount["free4d"])
+			fmt.Printf("Total counts (%.2f%%): \n\tFixed: %v\n\tFree3D: %v\n\tFree4D: %v", wg.Progress()*100, elementCount["fixed"], elementCount["free3d"], elementCount["free4d"])
 			fmt.Printf("\r\033[%dA", 3)
 		}
 	}
@@ -442,11 +472,11 @@ func main() {
 	cellsAdded := make([]Node, 0, n)
 
 	ch := make(chan map[string][]int)
-	var wg sync.WaitGroup
+	var wg ProgressWaitGroup
 
 	fmt.Printf("Total counts: \n\tFixed: []\n\tFree3D: []\n\tFree4D: []")
 	fmt.Printf("\r\033[%dA", 3)
 	count := CountPolyominoes(latticeGraph, 0, n, untriedSet, cellsAdded, oldNeighbours, ch, &wg)
-	fmt.Printf("Total counts: \n\tFixed: %v\n\tFree3D: %v\n\tFree4D: %v\n", count["fixed"], count["free3d"], count["free4d"])
+	fmt.Printf("Total counts (100.00%%): \n\tFixed: %v\n\tFree3D: %v\n\tFree4D: %v\n", count["fixed"], count["free3d"], count["free4d"])
 	fmt.Println("Completed in:", time.Since(startTime))
 }
