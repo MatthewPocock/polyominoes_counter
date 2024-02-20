@@ -97,6 +97,8 @@ func isCanonical(nodes []Node) bool {
 	return true
 }
 
+// CountPolyominoes implements Redelmeier's algorithm to enumerate fixed polycubes w/ an additional isCanonical check
+// to determine if polycube is unique when considering rotations.
 func CountPolyominoes(
 	graph *Graph,
 	depth int,
